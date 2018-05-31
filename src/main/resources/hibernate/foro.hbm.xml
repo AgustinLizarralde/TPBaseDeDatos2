@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+
+<hibernate-mapping package="modelo">
+    <class name="Foro" table="foro">
+		<id name="id" column="id_foro">
+			<generator class="native"/>
+		</id>
+		<version name="version" type="long" />
+		
+		<bag name="usuarios" cascade="all, delete-orphan" lazy="true">
+			<key column="id_foro"/>
+			<one-to-many class="Usuario"/>
+		</bag>
+      	
+      	<bag name = "publicaciones" cascade="all, delete-orphan" lazy="true">
+        	<key column = "id_foro"/>
+        	<one-to-many class="Publicacion"/>
+      	</bag>
+      	
+	</class>
+</hibernate-mapping>

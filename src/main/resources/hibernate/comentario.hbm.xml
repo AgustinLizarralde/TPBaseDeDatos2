@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+
+<hibernate-mapping package="modelo">
+    <class name="Comentario" table="comentario">
+		<id name="id" column="id_comentario">
+			<generator class="native"/>
+		</id>
+		<version name="version" type="long" />
+		
+		<property name="texto" type="java.lang.String" not-null="true"/>
+		<property name="fecha" type="java.util.Date" not-null="true"/>
+        
+		<many-to-one
+			name="publicacion"
+			class="Publicacion"
+			column="id_publicacion"
+			unique="false"
+			update="true"
+			insert="true"
+			lazy="false"
+			not-null="true"
+			cascade="save-update">
+		</many-to-one>
+		
+ 		<many-to-one
+			name="usuario"
+			class="Usuario"
+			column="id_usuario"
+			unique="false"
+			update="true"
+			insert="true"
+			lazy="false"
+			not-null="true"
+			cascade="save-update">
+		</many-to-one>
+
+	</class>	
+</hibernate-mapping>

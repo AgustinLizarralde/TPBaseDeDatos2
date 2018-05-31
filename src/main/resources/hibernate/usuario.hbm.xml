@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" 
+"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd"> 
+
+<hibernate-mapping package="modelo">
+    <class name="Usuario" table="usuario">
+    	<id name="id" column="id_usuario">
+			<generator class="native"/>
+		</id>
+		<version name="version" type="long" />
+		
+		<property name="nombre" type="java.lang.String" not-null="true"/>
+		<property name="password" type="java.lang.String" not-null="true"/>
+		
+		<bag name="comentarios" cascade="save-update, refresh, delete-orphan" lazy="false" order-by="fecha asc">
+			<key column="id_usuario_comentario"/>
+			<one-to-many class="Comentario"/>
+		</bag>
+		
+    </class>
+</hibernate-mapping>

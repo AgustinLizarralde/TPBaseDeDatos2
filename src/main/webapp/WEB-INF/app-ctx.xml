@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:tx="http://www.springframework.org/schema/tx" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:jpa="http://www.springframework.org/schema/data/jpa"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx.xsd
+		http://www.springframework.org/schema/data/jpa
+    	http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
+    	http://www.springframework.org/schema/aop
+    	http://www.springframework.org/schema/aop/spring-aop.xsd
+    	http://www.springframework.org/schema/util
+    	http://www.springframework.org/schema/util/spring-util.xsd
+    	http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+	<context:component-scan base-package="rest, modelo, repositoriosSpring, utilidades">
+		<context:exclude-filter type="regex" expression="busqueda"/>
+	</context:component-scan>
+	<context:annotation-config/>
+	
+	<mvc:annotation-driven />
+	<!--propiedades de la Base de Datos -->
+
+	<!-- DataSource -->
+	<!-- CREATE DATABASE TPBaseDeDatos2  DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci; -->
+	<bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/TPBaseDeDatos2" />
+		<property name="user" value="root" />
+		<property name="password" value="root" />
+		<property name="acquireIncrement" value="2" />
+		<property name="minPoolSize" value="2" />
+		<property name="maxPoolSize" value="50" />
+		<property name="maxIdleTime" value="600" />
+	</bean>
+ 	
+
+	<!-- EntitiManagerFactory o SessionFactory -->
+	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="jpaVendorAdapter">
+			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" />
+		</property>
+		<property name="mappingResources">
+			<list>
+				<value>hibernate/comentario.hbm.xml</value>
+				<value>hibernate/publicacion.hbm.xml</value>
+				<value>hibernate/foro.hbm.xml</value>
+				<value>hibernate/usuario.hbm.xml</value>
+			</list>
+		</property>
+		<property name="jpaProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+				<prop key="hibernate.format_sql">true</prop>
+				<prop key="hibernate.show_sql">true</prop>
+			</props>
+		</property>
+	</bean>
+	
+	<!-- Transacciones -->
+	<!-- https://docs.spring.io/autorepo/docs/spring/4.2.x/spring-framework-reference/html/transaction.html -->
+	<!--  -->
+	
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	
+	<!-- transaction manager -->
+	<bean id="transactionManager" class="org.springframework.orm.jpa.JpaTransactionManager ">
+		<property name="entityManagerFactory" ref="entityManagerFactory" />
+		<property name="dataSource" ref="dataSource"/>
+	</bean>
+
+	<!-- transactional advice relacionado a <aop:advisor/> -->
+	
+	<!-- 
+	<tx:advice id="transactionAdvice" transaction-manager="transactionManager">
+	    <tx:attributes>
+			<tx:method name="get*" read-only="true" />
+			<tx:method name="find*" read-only="true" />
+			<tx:method name="*" />
+	    </tx:attributes>
+	</tx:advice>
+
+	-->
+	
+	 <!-- Lista de clases a hacer transactionales -->
+	 <!-- 
+    <bean id="CargarDatosREST" class="rest.CargarDatosREST">
+	    <property name="usuarioRepo" ref="usuarioRepository" />
+	    <property name="comentarioRepo" ref="comentarioRepository" />
+	    <property name="publicacionRepo" ref="publicacionRepository" />
+	    <property name="foroRepo" ref="foroRepository" />
+	    <property name="repoFactory" ref="busquedaFactory" />
+	    <property name="persistenceContextType" value="TRANSACTION"/>
+    </bean>
+     
+    <aop:config>
+        <aop:pointcut id="RESTOperation" expression="execution(public rest.CargarDatosREST.*(..))"/>
+        <aop:advisor advice-ref="transactionAdvice" pointcut-ref="RESTOperation"/>
+    </aop:config>
+    -->
+	
+	<!-- repositorios creados por spring desde las interfaces -->
+	<jpa:repositories base-package="repositoriosSpring" entity-manager-factory-ref="entityManagerFactory"/>
+	
+	<!-- Inyeccion de dependencias -->
+	<bean id="busquedaFactory" class="utilidades.BusquedaFactory" factory-method="getInstance" scope="singleton" lazy-init="true">
+	    <property name="busquedaUsuarios" ref="usuarioRepository" />
+	    <property name="busquedaComentarios" ref="comentarioRepository" />
+	    <property name="busquedaPublicaciones" ref="publicacionRepository" />
+	    <property name="busquedaForo" ref="foroRepository" />
+    </bean>
+    
+</beans>
